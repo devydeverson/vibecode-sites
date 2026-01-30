@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibecode Sites - Creative Experiments</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: white;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 50px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+        }
+        
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .tech {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            opacity: 0.8;
+        }
+        
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Vibecode Sites</h1>
+        <p class="subtitle">Three creative experiments built in pure flow - no planning, just creating</p>
+        
+        <div class="grid">
+            <a href="cosmic-mood-ring/index.html" class="card">
+                <div class="icon">🌌</div>
+                <h2>Cosmic Mood Ring</h2>
+                <p>Interactive particle system that reads your energy based on mouse movement. Watch particles dance and discover your cosmic mood.</p>
+                <div class="tech">Canvas API • Particle Physics</div>
+            </a>
+            
+            <a href="wisdom-dispenser/index.html" class="card">
+                <div class="icon">✨</div>
+                <h2>Wisdom Dispenser</h2>
+                <p>Beautiful fortune cookie meets inspirational quotes. Dispense infinite wisdom with smooth animations and twinkling stars.</p>
+                <div class="tech">CSS Animations • Google Fonts</div>
+            </a>
+            
+            <a href="retro-terminal/index.html" class="card">
+                <div class="icon">💻</div>
+                <h2>Retro Terminal</h2>
+                <p>Old-school hacker terminal with working commands. Green on black, CRT scanlines, and matrix rain. Pure 1995 vibes.</p>
+                <div class="tech">CSS Effects • VT323 Font</div>
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>Built with vibes by Jeff • 2026-01-29</p>
+            <p><a href="https://github.com/devydeverson/vibecode-sites" target="_blank">View Source on GitHub</a></p>
+        </div>
+    </div>
+</body>
+</html>
