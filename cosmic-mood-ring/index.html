@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 Cosmic Mood Ring</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .mood {
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .description {
+            font-size: 14px;
+            opacity: 0.8;
+            max-width: 300px;
+        }
+        
+        .vibe-meter {
+            margin-top: 15px;
+            font-size: 12px;
+        }
+        
+        .bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+        
+        .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff00ff, #00ffff);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="info">
+        <div class="mood" id="mood">EXPLORING</div>
+        <div class="description" id="description">Your cosmic energy is curious and wandering...</div>
+        <div class="vibe-meter">
+            <div>ENERGY</div>
+            <div class="bar"><div class="fill" id="energy" style="width: 50%"></div></div>
+            <div>CHAOS</div>
+            <div class="bar"><div class="fill" id="chaos" style="width: 30%"></div></div>
+            <div>FLOW</div>
+            <div class="bar"><div class="fill" id="flow" style="width: 70%"></div></div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let particles = [];
+        let mouse = { x: canvas.width / 2, y: canvas.height / 2, vx: 0, vy: 0 };
+        let lastMouse = { x: mouse.x, y: mouse.y };
+        
+        const moods = [
+            { name: 'TRANQUIL', desc: 'Your energy is calm like a still ocean...', color: [100, 150, 255] },
+            { name: 'ENERGIZED', desc: 'Buzzing with electric creativity...', color: [255, 100, 200] },
+            { name: 'FLOWING', desc: 'Moving with effortless grace...', color: [100, 255, 150] },
+            { name: 'COSMIC', desc: 'Tapped into the universal vibe...', color: [200, 100, 255] },
+            { name: 'CHAOTIC', desc: 'Wild and untamed energy...', color: [255, 200, 50] },
+            { name: 'DREAMING', desc: 'Floating between worlds...', color: [150, 150, 255] }
+        ];
+        
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 3 + 1;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= 0.99;
+                this.vy *= 0.99;
+                this.life -= this.decay;
+                
+                // Gentle attraction to mouse
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist > 0) {
+                    this.vx += (dx / dist) * 0.1;
+                    this.vy += (dy / dist) * 0.1;
+                }
+            }
+            
+            draw(mood) {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = `rgb(${mood.color.join(',')})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        let currentMood = moods[0];
+        
+        function updateMood() {
+            const speed = Math.sqrt(mouse.vx * mouse.vx + mouse.vy * mouse.vy);
+            const energy = Math.min(100, speed * 2);
+            const chaos = Math.min(100, particles.length / 2);
+            const flow = 100 - Math.abs(50 - energy);
+            
+            document.getElementById('energy').style.width = energy + '%';
+            document.getElementById('chaos').style.width = chaos + '%';
+            document.getElementById('flow').style.width = flow + '%';
+            
+            // Pick mood based on vibes
+            if (speed < 2) currentMood = moods[0]; // Tranquil
+            else if (speed > 10) currentMood = moods[4]; // Chaotic
+            else if (flow > 70) currentMood = moods[2]; // Flowing
+            else if (energy > 60) currentMood = moods[1]; // Energized
+            else currentMood = moods[Math.floor(Math.random() * moods.length)];
+            
+            document.getElementById('mood').textContent = currentMood.name;
+            document.getElementById('description').textContent = currentMood.desc;
+        }
+        
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Spawn particles at mouse
+            if (Math.random() > 0.7) {
+                particles.push(new Particle(mouse.x, mouse.y));
+            }
+            
+            // Update and draw particles
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw(currentMood);
+            });
+            
+            // Draw connection lines
+            ctx.globalAlpha = 0.3;
+            ctx.strokeStyle = `rgb(${currentMood.color.join(',')})`;
+            particles.forEach((p, i) => {
+                particles.slice(i + 1).forEach(p2 => {
+                    const dist = Math.sqrt((p.x - p2.x) ** 2 + (p.y - p2.y) ** 2);
+                    if (dist < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+            
+            updateMood();
+            requestAnimationFrame(animate);
+        }
+        
+        canvas.addEventListener('mousemove', (e) => {
+            lastMouse.x = mouse.x;
+            lastMouse.y = mouse.y;
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            mouse.vx = mouse.x - lastMouse.x;
+            mouse.vy = mouse.y - lastMouse.y;
+        });
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        animate();
+    </script>
+</body>
+</html>

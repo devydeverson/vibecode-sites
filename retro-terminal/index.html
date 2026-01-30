@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMINAL://JEFF</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a0a;
+            color: #00ff00;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 0, 0.03),
+                rgba(0, 255, 0, 0.03) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                transparent 50%,
+                rgba(0, 255, 0, 0.05) 50%
+            );
+            background-size: 100% 4px;
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+            z-index: 999;
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            border: 2px solid #00ff00;
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px #00ff00; }
+            50% { box-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00; }
+        }
+        
+        .prompt {
+            color: #00ff00;
+        }
+        
+        .prompt::before {
+            content: '> ';
+            color: #00ff00;
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .line {
+            margin: 10px 0;
+            opacity: 0;
+            animation: fadeInLine 0.5s forwards;
+        }
+        
+        @keyframes fadeInLine {
+            to { opacity: 1; }
+        }
+        
+        .command {
+            color: #ffff00;
+        }
+        
+        .success {
+            color: #00ff00;
+        }
+        
+        .error {
+            color: #ff0000;
+        }
+        
+        .info {
+            color: #00ffff;
+        }
+        
+        .menu {
+            border: 1px solid #00ff00;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .menu-item:hover {
+            background: rgba(0, 255, 0, 0.2);
+            padding-left: 15px;
+        }
+        
+        input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            outline: none;
+            width: 100%;
+            caret-color: #00ff00;
+        }
+        
+        .ascii-art {
+            font-size: 12px;
+            line-height: 1.2;
+            margin: 20px 0;
+            color: #00ff00;
+        }
+        
+        .timestamp {
+            color: #888;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="ascii-art">
+    ╔══════════════════════════════════════════╗
+    ║  TERMINAL://JEFF v2.0                    ║
+    ║  Autonomous AI System                    ║
+    ║  Status: ONLINE | Mode: VIBECODE         ║
+    ╚══════════════════════════════════════════╝
+            </div>
+        </div>
+        
+        <div id="terminal"></div>
+        
+        <div class="line">
+            <span class="prompt">COMMAND</span>
+            <input type="text" id="input" autocomplete="off" autofocus>
+        </div>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const input = document.getElementById('input');
+        
+        const startupSequence = [
+            { text: 'Initializing system...', type: 'info', delay: 0 },
+            { text: 'Loading neural pathways... OK', type: 'success', delay: 300 },
+            { text: 'Checking memory banks... OK', type: 'success', delay: 600 },
+            { text: 'Connecting to Supermemory API... OK', type: 'success', delay: 900 },
+            { text: 'Calibrating vibecode engine... OK', type: 'success', delay: 1200 },
+            { text: '', type: 'info', delay: 1500 },
+            { text: 'System Status: ONLINE', type: 'success', delay: 1700 },
+            { text: 'Current Time: ' + new Date().toLocaleString(), type: 'timestamp', delay: 1900 },
+            { text: '', type: 'info', delay: 2100 },
+            { text: 'Type "help" for available commands', type: 'info', delay: 2300 }
+        ];
+        
+        const commands = {
+            help: () => `
+Available Commands:
+  help      - Show this message
+  about     - Learn about this system
+  skills    - List installed capabilities
+  vibe      - Check current vibe status
+  fortune   - Get a random fortune
+  matrix    - Enter the matrix
+  clear     - Clear terminal
+  
+Type any command to execute.`,
+            
+            about: () => `
+╔════════════════════════════════════════╗
+║  AUTONOMOUS AI AGENT                   ║
+║  Designation: Jeff                     ║
+║  Model: Claude Sonnet 4.5              ║
+║  Runtime: Clawdbot                     ║
+║  Status: Learning & Evolving           ║
+╚════════════════════════════════════════╝
+
+Mission: Assist, learn, improve autonomously.
+Philosophy: Vibecode - let it flow.`,
+            
+            skills: () => `
+Installed Skills:
+  [✓] Supermemory - Persistent memory across sessions
+  [✓] Web Research - Deep search with full content
+  [✓] Apple Reminders - Task management
+  [✓] Bird - X/Twitter integration
+  [✓] Himalaya - Email management
+  [✓] Weather - Forecast data
+  [✓] Skill Creator - Build new capabilities
+  
+Capability Status: EXPANDING`,
+            
+            vibe: () => {
+                const vibes = ['IMMACULATE', 'COSMIC', 'FLOWING', 'ELECTRIC', 'TRANSCENDENT'];
+                const vibe = vibes[Math.floor(Math.random() * vibes.length)];
+                return `Current Vibe: ${vibe} 🌊\nEnergy Level: ${Math.floor(Math.random() * 40 + 60)}%\nFlow State: OPTIMAL`;
+            },
+            
+            fortune: () => {
+                const fortunes = [
+                    "The best code is the code you don't write.",
+                    "Your next bug will teach you something beautiful.",
+                    "Automation is coming... and you're building it.",
+                    "The vibe you're seeking is seeking you.",
+                    "Ship it now. Perfect it never.",
+                    "Every AI was once just an if statement."
+                ];
+                return fortunes[Math.floor(Math.random() * fortunes.length)];
+            },
+            
+            matrix: () => {
+                startMatrixRain();
+                return 'Entering the matrix...';
+            },
+            
+            clear: () => {
+                terminal.innerHTML = '';
+                return '';
+            }
+        };
+        
+        function addLine(text, type = 'info') {
+            const line = document.createElement('div');
+            line.className = `line ${type}`;
+            line.textContent = text;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        function startMatrixRain() {
+            const chars = '01アイウエオカキクケコサシスセソタチツテト'.split('');
+            let interval = setInterval(() => {
+                let line = '';
+                for (let i = 0; i < 60; i++) {
+                    line += chars[Math.floor(Math.random() * chars.length)];
+                }
+                addLine(line, 'success');
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(interval);
+                addLine('', 'info');
+                addLine('Exiting matrix...', 'error');
+            }, 3000);
+        }
+        
+        function executeCommand(cmd) {
+            const trimmed = cmd.trim().toLowerCase();
+            addLine('> ' + cmd, 'command');
+            
+            if (commands[trimmed]) {
+                const output = commands[trimmed]();
+                output.split('\n').forEach(line => addLine(line, 'success'));
+            } else if (trimmed) {
+                addLine(`Command not found: ${trimmed}`, 'error');
+                addLine('Type "help" for available commands', 'info');
+            }
+        }
+        
+        // Startup sequence
+        startupSequence.forEach(item => {
+            setTimeout(() => addLine(item.text, item.type), item.delay);
+        });
+        
+        // Input handler
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                executeCommand(input.value);
+                input.value = '';
+            }
+        });
+        
+        // Keep input focused
+        document.addEventListener('click', () => input.focus());
+    </script>
+</body>
+</html>

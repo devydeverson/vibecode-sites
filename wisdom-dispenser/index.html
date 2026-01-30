@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Infinite Wisdom Dispenser</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Playfair Display', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+        }
+        
+        h1 {
+            color: white;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .wisdom-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .wisdom-card::before {
+            content: '"';
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            font-size: 120px;
+            color: rgba(102, 126, 234, 0.1);
+            font-family: Georgia, serif;
+        }
+        
+        .wisdom-text {
+            font-size: 24px;
+            color: #333;
+            line-height: 1.6;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            animation: fadeIn 0.8s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        .category {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-style: normal;
+        }
+        
+        button {
+            background: white;
+            border: 3px solid white;
+            color: #667eea;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-family: 'Playfair Display', serif;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        button:active {
+            transform: translateY(-2px);
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .counter {
+            color: white;
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <h1>✨ Infinite Wisdom Dispenser ✨</h1>
+        
+        <div class="wisdom-card">
+            <div class="wisdom-text" id="wisdom"></div>
+            <div class="category" id="category"></div>
+        </div>
+        
+        <button onclick="dispenseWisdom()">Dispense Wisdom</button>
+        
+        <div class="counter">Wisdom dispensed: <span id="count">0</span></div>
+    </div>
+
+    <script>
+        const wisdoms = [
+            { text: "The code that works today will haunt you tomorrow.", category: "Programming Truths" },
+            { text: "Vibes are just undocumented features of reality.", category: "Life Philosophy" },
+            { text: "Sometimes the best optimization is doing nothing at all.", category: "Engineering Wisdom" },
+            { text: "Your future self is either grateful or annoyed. Choose wisely.", category: "Time Travel Advice" },
+            { text: "The universe is debugging itself through you.", category: "Cosmic Truth" },
+            { text: "Every expert was once a confused beginner who refused to quit.", category: "Growth Mindset" },
+            { text: "The best time to refactor was yesterday. The second best time is never.", category: "Code Humor" },
+            { text: "Creativity is just connecting things that weren't meant to be connected.", category: "Creative Wisdom" },
+            { text: "Ship it. Perfect is the enemy of done.", category: "Startup Vibes" },
+            { text: "The bugs you fix today create the features of tomorrow.", category: "Philosophical Code" },
+            { text: "There are no mistakes in jazz, only opportunities.", category: "Musical Wisdom" },
+            { text: "Code is poetry that machines happen to understand.", category: "Artistic Truth" },
+            { text: "The map is not the territory, but it's a pretty good wireframe.", category: "Design Philosophy" },
+            { text: "Simplicity is the ultimate sophistication. Complexity is the ultimate procrastination.", category: "Leonardo da Vinci (remixed)" },
+            { text: "Your vibe attracts your tribe, and your tribe reviews your PRs.", category: "Modern Proverbs" },
+            { text: "In the kingdom of code, the person with documentation is king.", category: "Developer Truths" },
+            { text: "The only constant is change. And bugs. Mostly bugs.", category: "Software Reality" },
+            { text: "Let it flow, let it break, let it teach you something.", category: "Vibecode Philosophy" }
+        ];
+        
+        let count = 0;
+        
+        function dispenseWisdom() {
+            const wisdom = wisdoms[Math.floor(Math.random() * wisdoms.length)];
+            const wisdomEl = document.getElementById('wisdom');
+            const categoryEl = document.getElementById('category');
+            
+            // Fade out
+            wisdomEl.style.animation = 'none';
+            setTimeout(() => {
+                wisdomEl.textContent = wisdom.text;
+                categoryEl.textContent = wisdom.category;
+                wisdomEl.style.animation = 'fadeIn 0.8s forwards';
+                count++;
+                document.getElementById('count').textContent = count;
+            }, 100);
+            
+            // Spawn a star
+            createStar();
+        }
+        
+        function createStar() {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 3 + 2 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 2 + 's';
+            document.getElementById('stars').appendChild(star);
+            
+            setTimeout(() => star.remove(), 3000);
+        }
+        
+        // Initial wisdom
+        dispenseWisdom();
+        
+        // Create some initial stars
+        for (let i = 0; i < 20; i++) {
+            createStar();
+        }
+    </script>
+</body>
+</html>
